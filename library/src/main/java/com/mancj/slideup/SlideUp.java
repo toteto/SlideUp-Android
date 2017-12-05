@@ -111,7 +111,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
                 mTranslationDelegate = new BottomToTopSlideTranslator(mBuilder, mAnimationProcessor);
                 break;
             case START:
-                mTranslationDelegate = new StartToEndTranslationDelegate(mBuilder, mAnimationProcessor);
+                mTranslationDelegate = new StartToEndTranslator(mBuilder, mAnimationProcessor);
                 break;
             case END:
                 mTranslationDelegate = new EndToStartSlideTranslator(mBuilder, mAnimationProcessor);
@@ -121,7 +121,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
                 new OnGlobalLayoutSingleListener(mBuilder.mSliderView, new Runnable() {
                     @Override
                     public void run() {
-                        
+
                         switch (mBuilder.mStartGravity) {
                             case TOP:
                                 mBuilder.mSliderView.setPivotY(mBuilder.mSliderView.getHeight());

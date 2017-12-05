@@ -1,5 +1,6 @@
 package com.mancj.slideup;
 
+import static com.mancj.slideup.Internal.calculateHiddenTranslation;
 import static com.mancj.slideup.SlideUp.State.HIDDEN;
 import static com.mancj.slideup.SlideUp.State.SHOWED;
 
@@ -25,7 +26,7 @@ public class EndToStartSlideTranslator extends AbstractSlideTranslator {
   @Override
   protected void immediatelyHideSlideView() {
     if (mBuilder.mSliderView.getWidth() > 0) {
-      mBuilder.mSliderView.setTranslationX(mBuilder.mSliderView.getWidth());
+      mBuilder.mSliderView.setTranslationX(calculateHiddenTranslation(mBuilder));
     } else {
       mBuilder.mStartState = HIDDEN;
     }
@@ -33,6 +34,6 @@ public class EndToStartSlideTranslator extends AbstractSlideTranslator {
 
   @Override
   protected void animateHideSlideView() {
-    mAnimationProcessor.setValuesAndStart(mBuilder.mSliderView.getTranslationX(), mBuilder.mSliderView.getWidth());
+    mAnimationProcessor.setValuesAndStart(mBuilder.mSliderView.getTranslationX(), calculateHiddenTranslation(mBuilder));
   }
 }

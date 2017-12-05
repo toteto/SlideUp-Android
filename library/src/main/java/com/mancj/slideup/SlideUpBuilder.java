@@ -30,7 +30,10 @@ public final class SlideUpBuilder {
     boolean mGesturesEnabled = true;
     boolean mHideKeyboard = false;
     TimeInterpolator mInterpolator = new DecelerateInterpolator();
+    @Nullable
     View mAlsoScrollView;
+    @Nullable
+    View mPullTabView;
 
     /**
      * <p>Construct a SlideUp by passing the view or his child to use for the generation</p>
@@ -185,6 +188,11 @@ public final class SlideUpBuilder {
      */
     public SlideUpBuilder withSlideFromOtherView(@Nullable View alsoScrollView) {
         mAlsoScrollView = alsoScrollView;
+        return this;
+    }
+
+    public SlideUpBuilder withPullTabView(@Nullable View pullTab) {
+        mPullTabView = pullTab;
         return this;
     }
     
