@@ -61,9 +61,8 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     
     private SlideUpBuilder mBuilder;
     
-    private VerticalTouchConsumer mVerticalTouchConsumer;
-    private HorizontalTouchConsumer mHorizontalTouchConsumer;
-    
+    private TouchConsumer mTouchConsumer;
+
     private AnimationProcessor mAnimationProcessor;
     private AbstractSlideTranslator mTranslationDelegate;
     
@@ -140,7 +139,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
                                 setTouchableAreaHorizontal();
                                 break;
                         }
-                        createConsumers();
+                        mTouchConsumer = createConsumers();
                         updateToCurrentState();
                     }
                 }));
@@ -163,9 +162,17 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
         mAnimationProcessor = new AnimationProcessor(mBuilder, this, this);
     }
 
-    private void createConsumers() {
-        mVerticalTouchConsumer = new VerticalTouchConsumer(mBuilder, this, mTranslationDelegate);
-        mHorizontalTouchConsumer = new HorizontalTouchConsumer(mBuilder, this, mTranslationDelegate);
+    @NonNull
+    private TouchConsumer createConsumers() {
+        switch (mBuilder.mStartGravity) {
+            case TOP:
+            case BOTTOM:
+                return new VerticalTouchConsumer(mBuilder, this, mTranslationDelegate);
+            case START:
+            case END:
+                return new HorizontalTouchConsumer(mBuilder, this, mTranslationDelegate);
+        }
+        throw new RuntimeException("Invalid hidden gravity of the slide view.");
     }
 
     private void updateToCurrentState() {
@@ -443,23 +450,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
             mBuilder.mSliderView.performClick();
             return true;
         }
-        boolean consumed;
-        switch (mBuilder.mStartGravity) {
-            case TOP:
-                consumed = mVerticalTouchConsumer.consumeTopToBottom(v, event);
-                break;
-            case BOTTOM:
-                consumed = mVerticalTouchConsumer.consumeBottomToTop(v, event);
-                break;
-            case START:
-                consumed = mHorizontalTouchConsumer.consumeStartToEnd(v, event);
-                break;
-            case END:
-                consumed = mHorizontalTouchConsumer.consumeEndToStart(v, event);
-                break;
-            default:
-                throw new IllegalArgumentException("You are using not supported gravity");
-        }
+        boolean consumed = mTouchConsumer.consumeTouchEvent(v, event);
         if (!consumed){
             mBuilder.mSliderView.performClick();
         }
@@ -542,7 +533,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     public void notifyPercentChanged(float percent) {
         percent = percent > 100 ? 100 : percent;
         percent = percent < 0 ? 0 : percent;
-        if (percent == 100) {
+        if (percent == 100 ) {
             mBuilder.mSliderView.setVisibility(GONE);
             notifyVisibilityChanged(GONE);
         } else {

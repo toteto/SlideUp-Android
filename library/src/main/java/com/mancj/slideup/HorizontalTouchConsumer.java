@@ -3,6 +3,9 @@ package com.mancj.slideup;
 import android.view.MotionEvent;
 import android.view.View;
 
+import static android.view.Gravity.END;
+import static android.view.Gravity.START;
+
 /**
  * @author pa.gulko zTrap (12.07.2017)
  */
@@ -13,7 +16,18 @@ class HorizontalTouchConsumer extends TouchConsumer {
     HorizontalTouchConsumer(SlideUpBuilder builder, PercentageChangeCalculator percentageChangeCalculator, AbstractSlideTranslator translator) {
         super(builder, percentageChangeCalculator, translator);
     }
-    
+
+    @Override
+    protected boolean consumeTouchEvent(View touchedView, MotionEvent event) {
+        switch (mBuilder.mStartGravity) {
+        case END:
+            return consumeEndToStart(touchedView, event);
+        case START:
+            return consumeStartToEnd(touchedView, event);
+        }
+        return false;
+    }
+
     boolean consumeEndToStart(View touchedView, MotionEvent event){
         float touchedArea = event.getX();
         switch (event.getActionMasked()){

@@ -6,7 +6,7 @@ import android.view.View;
 /**
  * @author pa.gulko zTrap (12.07.2017)
  */
-class TouchConsumer {
+abstract class TouchConsumer {
     SlideUpBuilder mBuilder;
     AbstractSlideTranslator mTranslator;
 
@@ -29,6 +29,8 @@ class TouchConsumer {
         mTranslator = translator;
         mPercentageCalculator = notifier;
     }
+
+    protected abstract boolean consumeTouchEvent(View touchedView, MotionEvent event);
     
     int getEnd(){
         if (mBuilder.mIsRTL){

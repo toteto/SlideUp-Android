@@ -3,6 +3,9 @@ package com.mancj.slideup;
 import android.view.MotionEvent;
 import android.view.View;
 
+import static android.view.Gravity.BOTTOM;
+import static android.view.Gravity.TOP;
+
 /**
  * @author pa.gulko zTrap (05.07.2017)
  */
@@ -13,7 +16,18 @@ class VerticalTouchConsumer extends TouchConsumer {
     VerticalTouchConsumer(SlideUpBuilder builder, PercentageChangeCalculator percentageChangeCalculator, AbstractSlideTranslator translator) {
         super(builder, percentageChangeCalculator, translator);
     }
-    
+
+    @Override
+    protected boolean consumeTouchEvent(View touchedView, MotionEvent event) {
+        switch (mBuilder.mStartGravity) {
+            case BOTTOM:
+                return consumeBottomToTop(touchedView, event);
+            case TOP:
+                return consumeTopToBottom(touchedView, event);
+        }
+        return false;
+    }
+
     boolean consumeBottomToTop(View touchedView, MotionEvent event){
         float touchedArea = event.getY();
         switch (event.getActionMasked()){
