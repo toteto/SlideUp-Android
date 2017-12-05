@@ -101,6 +101,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
         if(mBuilder.mAlsoScrollView != null) {
             mBuilder.mAlsoScrollView.setOnTouchListener(this);
         }
+        mCurrentState = mBuilder.mStartState;
         createAnimation();
         switch (mBuilder.mStartGravity) {
             case TOP:
@@ -176,7 +177,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     }
 
     private void updateToCurrentState() {
-        switch (mBuilder.mStartState) {
+        switch (mCurrentState) {
             case HIDDEN:
                 hideImmediately();
                 break;
@@ -495,30 +496,35 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
 
     @Override
     public float recalculatePercentage() {
+        final float tabHeight = mBuilder.mPullTabView != null ? mBuilder.mPullTabView.getHeight() : 0;
+        final float tabWidth = mBuilder.mPullTabView != null ? mBuilder.mPullTabView.getWidth() : 0;
+
         final float percents;
         final float visibleDistance;
         switch (mBuilder.mStartGravity) {
             case TOP:
                 visibleDistance = mBuilder.mSliderView.getTop() - mBuilder.mSliderView.getY();
-                percents = (visibleDistance) * 100 / mBuilder.mSliderView.getHeight();
+                percents = (visibleDistance) * 100 / (mBuilder.mSliderView.getHeight() - tabHeight);
                 break;
             case BOTTOM:
                 visibleDistance = mBuilder.mSliderView.getY() - mBuilder.mSliderView.getTop();
-                percents = (visibleDistance) * 100 / mBuilder.mSliderView.getHeight();
+                percents = (visibleDistance) * 100 / (mBuilder.mSliderView.getHeight() - tabHeight);
                 break;
             case START:
-                visibleDistance = mBuilder.mSliderView.getX() - getStart();
-                percents = (visibleDistance) * 100 / -mBuilder.mSliderView.getWidth();
+                visibleDistance = mBuilder.mSliderView.getX() - tabWidth - getStart();
+                percents = (visibleDistance) * 100 / -(mBuilder.mSliderView.getWidth() - tabWidth);
                 break;
 
             case END:
-                visibleDistance = mBuilder.mSliderView.getX() - getStart();
-                percents = (visibleDistance) * 100 / mBuilder.mSliderView.getWidth();
+                visibleDistance = mBuilder.mSliderView.getX() + tabWidth - getStart();
+                percents = (visibleDistance) * 100 / (mBuilder.mSliderView.getWidth() - tabWidth);
                 break;
             default: throw new RuntimeException("Invalid hidden gravity of the slide view.");
         }
-        notifyPercentChanged(percents);
-        return percents;
+        // return range of 0-100
+        float result = percents > 100 ? 100 : percents < 0 ? 0 : percents;
+        notifyPercentChanged(result);
+        return result;
     }
 
     private int getStart() {
@@ -531,14 +537,12 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     
     @Override
     public void notifyPercentChanged(float percent) {
-        percent = percent > 100 ? 100 : percent;
-        percent = percent < 0 ? 0 : percent;
-        if (percent == 100 ) {
-            mBuilder.mSliderView.setVisibility(GONE);
+        if (percent == 100 && mCurrentState == SHOWED) {
+            mCurrentState = HIDDEN;
             notifyVisibilityChanged(GONE);
         } else {
-            mBuilder.mSliderView.setVisibility(VISIBLE);
-            if (percent == 0) {
+            if (percent == 0 && mCurrentState == HIDDEN) {
+                mCurrentState = SHOWED;
                 notifyVisibilityChanged(VISIBLE);
             }
         }
@@ -575,14 +579,6 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
                     logError(i, "onVisibilityChanged");
                 }
             }
-        }
-        switch (visibility) {
-            case VISIBLE:
-                mCurrentState = SHOWED;
-                break;
-            case GONE:
-                mCurrentState = HIDDEN;
-                break;
         }
     }
     
