@@ -32,16 +32,17 @@ class VerticalTouchConsumer extends TouchConsumer {
         float touchedArea = event.getY();
         switch (event.getActionMasked()){
             case MotionEvent.ACTION_DOWN:
+                mOngoingTouch = true;
                 mViewHeight = mBuilder.mSliderView.getHeight();
                 mStartPositionY = event.getRawY();
                 mViewStartPositionY = mBuilder.mSliderView.getTranslationY();
                 mCanSlide = touchFromAlsoSlide(touchedView, event);
                 mCanSlide |= mBuilder.mTouchableArea >= touchedArea;
+                mOngoingTouch = mCanSlide;
                 break;
             case MotionEvent.ACTION_MOVE:
                 float difference = event.getRawY() - mStartPositionY;
                 float moveTo = mViewStartPositionY + difference;
-                float percents = moveTo * 100 / mBuilder.mSliderView.getHeight();
                 calculateDirection(event);
                 
                 if (moveTo > 0 && mCanSlide){
@@ -50,12 +51,13 @@ class VerticalTouchConsumer extends TouchConsumer {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                mOngoingTouch = false;
                 float slideAnimationFrom = mBuilder.mSliderView.getTranslationY();
                 if (slideAnimationFrom == mViewStartPositionY) {
                     return !Internal.isUpEventInView(mBuilder.mSliderView, event);
                 }
                 boolean scrollableAreaConsumed = mBuilder.mSliderView.getTranslationY() > mBuilder.mSliderView.getHeight() / 5;
-                
+
                 if (scrollableAreaConsumed && mGoingDown){
                     mTranslator.hideSlideView(false);
                 } else {
@@ -80,6 +82,7 @@ class VerticalTouchConsumer extends TouchConsumer {
                 mViewStartPositionY = mBuilder.mSliderView.getTranslationY();
                 mCanSlide = touchFromAlsoSlide(touchedView, event);
                 mCanSlide |= getBottom() - mBuilder.mTouchableArea <= touchedArea;
+                mOngoingTouch = mCanSlide;
                 break;
             case MotionEvent.ACTION_MOVE:
                 float difference = event.getRawY() - mStartPositionY;
@@ -92,12 +95,13 @@ class VerticalTouchConsumer extends TouchConsumer {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                mOngoingTouch = false;
                 float slideAnimationFrom = -mBuilder.mSliderView.getTranslationY();
                 if (slideAnimationFrom == mViewStartPositionY){
                     return !Internal.isUpEventInView(mBuilder.mSliderView, event);
                 }
                 boolean scrollableAreaConsumed = mBuilder.mSliderView.getTranslationY() < -mBuilder.mSliderView.getHeight() / 5;
-            
+
                 if (scrollableAreaConsumed && mGoingUp){
                     mTranslator.hideSlideView(false);
                 }else {

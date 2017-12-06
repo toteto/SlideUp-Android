@@ -29,6 +29,7 @@ public final class SlideUpBuilder {
     int mStartGravity = Gravity.BOTTOM;
     boolean mGesturesEnabled = true;
     boolean mHideKeyboard = false;
+    boolean mFilterFakePositives = false;
     TimeInterpolator mInterpolator = new DecelerateInterpolator();
     @Nullable
     View mAlsoScrollView;
@@ -195,6 +196,11 @@ public final class SlideUpBuilder {
         mPullTabView = pullTab;
         return this;
     }
+
+    public SlideUpBuilder withFilterFakePositives(boolean filterFakePositives) {
+        mFilterFakePositives = filterFakePositives;
+        return this;
+    }
     
     /**
      * <p>Build the SlideUp and add behavior to view</p>
@@ -217,5 +223,6 @@ public final class SlideUpBuilder {
         mTouchableArea = savedState.getFloat(SlideUp.KEY_TOUCHABLE_AREA, mTouchableArea) * mDensity;
         mAutoSlideDuration = savedState.getInt(SlideUp.KEY_AUTO_SLIDE_DURATION, mAutoSlideDuration);
         mHideKeyboard = savedState.getBoolean(SlideUp.KEY_HIDE_SOFT_INPUT, mHideKeyboard);
+        mFilterFakePositives = savedState.getBoolean(SlideUp.KEY_FILTER_FAKE_POSITIVES, mFilterFakePositives);
     }
 }

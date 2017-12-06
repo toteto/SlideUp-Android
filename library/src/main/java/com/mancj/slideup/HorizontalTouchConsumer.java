@@ -37,6 +37,7 @@ class HorizontalTouchConsumer extends TouchConsumer {
                 mViewStartPositionX = mBuilder.mSliderView.getTranslationX();
                 mCanSlide = touchFromAlsoSlide(touchedView, event);
                 mCanSlide |= getStart() + mBuilder.mTouchableArea >= touchedArea;
+                mOngoingTouch = mCanSlide;
                 break;
             case MotionEvent.ACTION_MOVE:
                 float difference = event.getRawX() - mStartPositionX;
@@ -49,12 +50,13 @@ class HorizontalTouchConsumer extends TouchConsumer {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                mOngoingTouch = false;
                 float slideAnimationFrom = mBuilder.mSliderView.getTranslationX();
                 if (slideAnimationFrom == mViewStartPositionX){
                     return !Internal.isUpEventInView(mBuilder.mSliderView, event);
                 }
                 boolean scrollableAreaConsumed = mBuilder.mSliderView.getTranslationX() > mBuilder.mSliderView.getWidth() / 5;
-                
+
                 if (scrollableAreaConsumed && mGoingToEnd){
                     mTranslator.hideSlideView(false);
                 }else {
@@ -77,6 +79,7 @@ class HorizontalTouchConsumer extends TouchConsumer {
                 mViewStartPositionX = mBuilder.mSliderView.getTranslationX();
                 mCanSlide = touchFromAlsoSlide(touchedView, event);
                 mCanSlide |= getEnd() - mBuilder.mTouchableArea >= touchedArea;
+                mOngoingTouch = mCanSlide;
                 break;
             case MotionEvent.ACTION_MOVE:
                 float difference = event.getRawX() - mStartPositionX;
@@ -89,12 +92,13 @@ class HorizontalTouchConsumer extends TouchConsumer {
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                mOngoingTouch = false;
                 float slideAnimationFrom = -mBuilder.mSliderView.getTranslationX();
                 if (slideAnimationFrom == mViewStartPositionX){
                     return !Internal.isUpEventInView(mBuilder.mSliderView, event);
                 }
                 boolean scrollableAreaConsumed = mBuilder.mSliderView.getTranslationX() < -mBuilder.mSliderView.getHeight() / 5;
-                
+
                 if (scrollableAreaConsumed && mGoingToStart){
                     mTranslator.hideSlideView(false);
                 }else {

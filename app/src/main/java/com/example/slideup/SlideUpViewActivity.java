@@ -73,6 +73,7 @@ public class SlideUpViewActivity extends AppCompatActivity {
                 .withStartState(SlideUp.State.HIDDEN)
                 .withSlideFromOtherView(findViewById(R.id.rootView))
                 .withPullTabView(textView)
+                .withFilterFakePositives(true)
                 .build();
 
         fab.setOnClickListener(new View.OnClickListener() {

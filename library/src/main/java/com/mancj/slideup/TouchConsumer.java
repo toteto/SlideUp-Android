@@ -11,6 +11,7 @@ abstract class TouchConsumer {
     AbstractSlideTranslator mTranslator;
 
     boolean mCanSlide = true;
+    boolean mOngoingTouch = false;
     PercentageChangeCalculator mPercentageCalculator;
     
     float mViewHeight;
@@ -58,5 +59,9 @@ abstract class TouchConsumer {
 
     boolean touchFromAlsoSlide(View touchedView, MotionEvent event) {
         return touchedView == mBuilder.mAlsoScrollView;
+    }
+
+    boolean isOngoingTouch() {
+        return mOngoingTouch;
     }
 }

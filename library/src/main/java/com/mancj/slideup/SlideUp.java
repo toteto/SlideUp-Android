@@ -33,6 +33,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     final static String KEY_AUTO_SLIDE_DURATION = TAG + "_auto_slide_duration";
     final static String KEY_HIDE_SOFT_INPUT = TAG + "_hide_soft_input";
     final static String KEY_STATE_SAVED = TAG + "_state_saved";
+    static final String KEY_FILTER_FAKE_POSITIVES = TAG + "_filter_fake_positives";
 
     /**
      * <p>Available start states</p>
@@ -427,6 +428,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
         savedState.putSerializable(KEY_STATE, mCurrentState);
         savedState.putInt(KEY_AUTO_SLIDE_DURATION, mBuilder.mAutoSlideDuration);
         savedState.putBoolean(KEY_HIDE_SOFT_INPUT, mBuilder.mHideKeyboard);
+        savedState.putBoolean(KEY_FILTER_FAKE_POSITIVES, mBuilder.mFilterFakePositives);
     }
     //endregion
 
@@ -533,7 +535,8 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     }
 
     private void setVisibility(State newVisibility) {
-        if (mCurrentState != newVisibility) {
+        if (mCurrentState != newVisibility && (!mBuilder.mFilterFakePositives || !mTouchConsumer.isOngoingTouch())) {
+            // visibility has changed and if applied filter fake positives
             mCurrentState = newVisibility;
             notifyVisibilityChanged(newVisibility);
         }
