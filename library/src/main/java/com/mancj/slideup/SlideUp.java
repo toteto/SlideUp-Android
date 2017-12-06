@@ -20,8 +20,6 @@ import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.END;
 import static android.view.Gravity.START;
 import static android.view.Gravity.TOP;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static com.mancj.slideup.SlideUp.State.HIDDEN;
 import static com.mancj.slideup.SlideUp.State.SHOWED;
 
@@ -42,12 +40,12 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     public enum State {
         
         /**
-         * State hidden is equal {@link View#GONE}
+         * State when the view is hidden.
          */
         HIDDEN,
         
         /**
-         * State showed is equal {@link View#VISIBLE}
+         * State when the view is showed.
          */
         SHOWED
     }
@@ -76,15 +74,14 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
             /**
              * @param percent percents of complete slide <b color="#EF6C00">(100 = HIDDEN, 0 = SHOWED)</b>
              */
-            void onSlide(float percent);
+            void onSlide(SlideUp slideUp, float percent);
         }
         
         interface Visibility extends Listener {
-            
-            /**
-             * @param visibility (<b>GONE</b> or <b>VISIBLE</b>)
-             */
-            void onVisibilityChanged(int visibility);
+
+            void onShown(SlideUp slideUp);
+
+            void onHidden(SlideUp slideUp);
         }
         
         interface Events extends Visibility, Slide {
@@ -211,10 +208,10 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     /**
      * <p>Returns the visibility status for this view.</p>
      *
-     * @return true if view have status {@link View#VISIBLE}
+     * @return true if the SlideUp has status {@link State#SHOWED}
      */
     public boolean isVisible() {
-        return mBuilder.mSliderView.getVisibility() == VISIBLE;
+        return mCurrentState == State.SHOWED;
     }
 
     /**
@@ -534,27 +531,31 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
             return mBuilder.mSliderView.getLeft();
         }
     }
+
+    private void setVisibility(State newVisibility) {
+        if (mCurrentState != newVisibility) {
+            mCurrentState = newVisibility;
+            notifyVisibilityChanged(newVisibility);
+        }
+    }
     
     @Override
     public void notifyPercentChanged(float percent) {
-        if (percent == 100 && mCurrentState == SHOWED) {
-            mCurrentState = HIDDEN;
-            notifyVisibilityChanged(GONE);
-        } else {
-            if (percent == 0 && mCurrentState == HIDDEN) {
-                mCurrentState = SHOWED;
-                notifyVisibilityChanged(VISIBLE);
-            }
+        if (percent == 100) {
+            setVisibility(HIDDEN);
+        } else if (percent == 0) {
+            setVisibility(SHOWED);
         }
-        if (mAnimationProcessor.getSlideAnimationTo() == 0 && mBuilder.mHideKeyboard)
+        if (mAnimationProcessor.getSlideAnimationTo() == 0 && mBuilder.mHideKeyboard) {
             hideSoftInput();
+        }
         if (!mBuilder.mListeners.isEmpty()) {
             for (int i = 0; i < mBuilder.mListeners.size(); i++) {
                 Listener l = mBuilder.mListeners.get(i);
                 if (l != null) {
                     if (l instanceof Listener.Slide) {
                         Listener.Slide slide = (Listener.Slide) l;
-                        slide.onSlide(percent);
+                        slide.onSlide(this, percent);
                         logValue(i, "onSlide", percent);
                     }
                 } else {
@@ -565,15 +566,19 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     }
     
     @Override
-    public void notifyVisibilityChanged(int visibility) {
+    public void notifyVisibilityChanged(State visibility) {
         if (!mBuilder.mListeners.isEmpty()) {
             for (int i = 0; i < mBuilder.mListeners.size(); i++) {
                 Listener l = mBuilder.mListeners.get(i);
                 if (l != null) {
                     if (l instanceof Listener.Visibility) {
                         Listener.Visibility vis = (Listener.Visibility) l;
-                        vis.onVisibilityChanged(visibility);
-                        logValue(i, "onVisibilityChanged", visibility == VISIBLE ? "VISIBLE" : visibility == GONE ? "GONE" : visibility);
+                        if (visibility == SHOWED) {
+                            vis.onShown(this);
+                        } else if (visibility == HIDDEN) {
+                            vis.onHidden(this);
+                        }
+                        logValue(i, "onVisibilityChanged", visibility.name());
                     }
                 } else {
                     logError(i, "onVisibilityChanged");

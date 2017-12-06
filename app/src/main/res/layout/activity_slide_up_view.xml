@@ -38,8 +38,7 @@
 
             </android.support.design.widget.AppBarLayout>
 
-            <include layout="@layout/content_slide_up_view"
-              tools:visibility = "gone"/>
+            <include layout="@layout/content_slide_up_view"/>
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab"

@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mancj.slideup.SlideUp;
@@ -18,6 +19,7 @@ public class SlideUpViewActivity extends AppCompatActivity {
     private SlideUp slideUp;
     private View dim;
     private View sliderView;
+    private TextView textView;
     private FloatingActionButton fab;
     Toast toast;
 
@@ -40,23 +42,29 @@ public class SlideUpViewActivity extends AppCompatActivity {
             }
         });
         dim = findViewById(R.id.dim);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
+        textView = findViewById(R.id.textView);
 
         slideUp = new SlideUpBuilder(sliderView)
                 .withListeners(new SlideUp.Listener.Events() {
                     @Override
-                    public void onSlide(float percent) {
+                    public void onSlide(SlideUp slideUp, float percent) {
                         dim.setAlpha(1 - (percent / 100));
                         if (fab.isShown() && percent < 100) {
                             fab.hide();
                         }
+
                     }
 
                     @Override
-                    public void onVisibilityChanged(int visibility) {
-                        if (visibility == View.GONE){
-                            fab.show();
-                        }
+                    public void onShown(SlideUp slideUp) {
+                        textView.setText(R.string.slide_it_down);
+                    }
+
+                    @Override
+                    public void onHidden(SlideUp slideUp) {
+                        fab.show();
+                        textView.setText(R.string.slide_it_up);
                     }
                 })
                 .withStartGravity(Gravity.BOTTOM)
@@ -64,6 +72,7 @@ public class SlideUpViewActivity extends AppCompatActivity {
                 .withGesturesEnabled(true)
                 .withStartState(SlideUp.State.HIDDEN)
                 .withSlideFromOtherView(findViewById(R.id.rootView))
+                .withPullTabView(textView)
                 .build();
 
         fab.setOnClickListener(new View.OnClickListener() {

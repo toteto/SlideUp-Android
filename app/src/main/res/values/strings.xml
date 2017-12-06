@@ -9,4 +9,7 @@
     <string name="slide_start_sample">SlideStart sample</string>
     <string name="slide_end_sample">SlideEnd sample</string>
     <string name="action_settings">Settings</string>
+    <string name="slide_it_down">Slide it down</string>
+    <string name="slide_it_up">Slide it up</string>
+
 </resources>

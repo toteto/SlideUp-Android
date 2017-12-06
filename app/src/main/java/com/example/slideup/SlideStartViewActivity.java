@@ -45,15 +45,18 @@ public class SlideStartViewActivity extends AppCompatActivity {
         slideUp = new SlideUpBuilder(sliderView)
                 .withListeners(new SlideUp.Listener.Events() {
                     @Override
-                    public void onSlide(float percent) {
+                    public void onSlide(SlideUp slideUp, float percent) {
                         dim.setAlpha(1 - (percent / 100));
                     }
-    
+
                     @Override
-                    public void onVisibilityChanged(int visibility) {
-                        if (visibility == View.GONE){
-                            fab.show();
-                        }
+                    public void onShown(SlideUp slideUp) {
+
+                    }
+
+                    @Override
+                    public void onHidden(SlideUp slideUp) {
+                        fab.show();
                     }
                 })
                 .withStartGravity(Gravity.START)

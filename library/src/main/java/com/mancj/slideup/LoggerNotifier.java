@@ -7,5 +7,5 @@ interface LoggerNotifier {
     
     void notifyPercentChanged(float percent);
     
-    void notifyVisibilityChanged(int visibility);
+    void notifyVisibilityChanged(SlideUp.State visibility);
 }
