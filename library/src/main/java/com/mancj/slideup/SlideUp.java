@@ -34,8 +34,9 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     final static String KEY_HIDE_SOFT_INPUT = TAG + "_hide_soft_input";
     final static String KEY_STATE_SAVED = TAG + "_state_saved";
     static final String KEY_FILTER_FAKE_POSITIVES = TAG + "_filter_fake_positives";
+    static final String KEY_STICKY = TAG + "_sticky";
 
-    /**
+  /**
      * <p>Available start states</p>
      */
     public enum State {
@@ -429,6 +430,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
         savedState.putInt(KEY_AUTO_SLIDE_DURATION, mBuilder.mAutoSlideDuration);
         savedState.putBoolean(KEY_HIDE_SOFT_INPUT, mBuilder.mHideKeyboard);
         savedState.putBoolean(KEY_FILTER_FAKE_POSITIVES, mBuilder.mFilterFakePositives);
+        savedState.putBoolean(KEY_STICKY, mBuilder.mSticky);
     }
     //endregion
 
@@ -446,6 +448,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     @Override
     public final boolean onTouch(View v, MotionEvent event) {
         if (mAnimationProcessor.isAnimationRunning()) return false;
+        if (mBuilder.mSticky && isVisible()) return false;
         if (!mBuilder.mGesturesEnabled){
             mBuilder.mSliderView.performClick();
             return true;
