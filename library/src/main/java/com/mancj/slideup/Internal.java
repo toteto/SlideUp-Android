@@ -37,6 +37,11 @@ class Internal {
         return false;
     }
 
+
+    /**
+     * Calculate at what translation should the {@link SlideUpBuilder#mSliderView} be in order to be hidden for the
+     * start gravity specified in the builder.
+     */
     public static float calculateHiddenTranslation(@NonNull SlideUpBuilder slideUpBuilder) {
         float pullTabWidth = slideUpBuilder.mPullTabView != null ? slideUpBuilder.mPullTabView.getWidth() : 0f;
         float pullTabHeight = slideUpBuilder.mPullTabView != null ? slideUpBuilder.mPullTabView.getHeight() : 0f;

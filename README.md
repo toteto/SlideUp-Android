@@ -59,6 +59,8 @@ slideUp = new SlideUpBuilder(slideView)
                 //.withHideSoftInputWhenDisplayed()
                 //.withInterpolator()
                 //.withAutoSlideDuration()
+                //.withSticky()
+                //.withFilterFakePositives()
                 //.withLoggingEnabled()
                 //.withTouchableAreaPx()
                 //.withTouchableAreaDp()
@@ -103,6 +105,7 @@ slideUp = new SlideUpBuilder(slideView)
          .withLoggingEnabled(true)
          .withStartState(SlideUp.State.HIDDEN)
          .withSlideFromOtherView(rootView)
+         .withFilterFakePositives(true)
          .build();
 
 fab.setOnClickListener(new View.OnClickListener() {

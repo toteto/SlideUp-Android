@@ -57,10 +57,18 @@ abstract class TouchConsumer {
         return mBuilder.mSliderView.getBottom();
     }
 
+
+    /**
+     * Is the touch event coming from the {@link SlideUpBuilder#mAlsoScrollView}.
+     */
     boolean touchFromAlsoSlide(View touchedView, MotionEvent event) {
         return touchedView == mBuilder.mAlsoScrollView;
     }
 
+
+    /**
+     * Is the user still interacting with the SlideUp view.*
+     */
     boolean isOngoingTouch() {
         return mOngoingTouch;
     }

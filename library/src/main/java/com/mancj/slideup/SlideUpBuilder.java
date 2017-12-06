@@ -198,11 +198,23 @@ public final class SlideUpBuilder {
         return this;
     }
 
+
+    /**
+     * <p>Make SlideUp ignore fake-positive visibility changes. Fake positive is considered when the view is fully open
+     * but the user is still interacting with it.</p>
+     *
+     * @param filterFakePositives <b>(default - <b color="#EF6C00">false</b>)</b>
+     */
     public SlideUpBuilder withFilterFakePositives(boolean filterFakePositives) {
         mFilterFakePositives = filterFakePositives;
         return this;
     }
 
+    /**
+     * <p>Once the SlideUp is showed, make it stick to that showed state and no slide will affect it.</p>
+     *
+     * @param sticky <b>(default - <b color="#EF6C00">false</b>)</b>
+     */
     public SlideUpBuilder withSticky(boolean sticky) {
         mSticky = sticky;
         return this;
