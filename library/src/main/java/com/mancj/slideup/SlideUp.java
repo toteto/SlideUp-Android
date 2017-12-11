@@ -65,7 +65,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
 
     private AnimationProcessor mAnimationProcessor;
     private AbstractSlideTranslator mTranslationDelegate;
-    
+
     /**
      * <p>Interface to listen to all handled events taking place in the slider</p>
      */
@@ -99,6 +99,9 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
         mBuilder.mSliderView.setOnTouchListener(this);
         if(mBuilder.mAlsoScrollView != null) {
             mBuilder.mAlsoScrollView.setOnTouchListener(this);
+        }
+        if (mBuilder.mPullTabView != null) {
+          mBuilder.mPullTabView.setOnTouchListener(this);
         }
         mCurrentState = mBuilder.mStartState;
         createAnimation();
@@ -440,7 +443,6 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     }
 
     private void show(boolean immediately) {
-        mAnimationProcessor.endAnimation();
         mTranslationDelegate.showSlideView(immediately);
         recalculatePercentage();
     }
@@ -449,15 +451,8 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     public final boolean onTouch(View v, MotionEvent event) {
         if (mAnimationProcessor.isAnimationRunning()) return false;
         if (mBuilder.mSticky && isVisible()) return false;
-        if (!mBuilder.mGesturesEnabled){
-            mBuilder.mSliderView.performClick();
-            return true;
-        }
-        boolean consumed = mTouchConsumer.consumeTouchEvent(v, event);
-        if (!consumed){
-            mBuilder.mSliderView.performClick();
-        }
-        return true;
+        if (!mBuilder.mGesturesEnabled) return false;
+        return mTouchConsumer.consumeTouchEvent(v, event);
     }
 
     @Override
@@ -541,6 +536,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
         if (mCurrentState != newVisibility && (!mBuilder.mFilterFakePositives || !mTouchConsumer.isOngoingTouch())) {
             // visibility has changed and if applied filter fake positives
             mCurrentState = newVisibility;
+            mTranslationDelegate.mCurrentState = newVisibility;
             notifyVisibilityChanged(newVisibility);
         }
     }

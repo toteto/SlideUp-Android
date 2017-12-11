@@ -2,6 +2,7 @@ package com.mancj.slideup;
 
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 /**
  * @author pa.gulko zTrap (12.07.2017)
@@ -12,6 +13,7 @@ abstract class TouchConsumer {
 
     boolean mCanSlide = true;
     boolean mOngoingTouch = false;
+    boolean mCandidateForClick = false;
     PercentageChangeCalculator mPercentageCalculator;
     
     float mViewHeight;
@@ -23,12 +25,14 @@ abstract class TouchConsumer {
     volatile float mPrevPositionX;
     float mViewStartPositionY;
     float mViewStartPositionX;
-    
+    final int mTouchSlop;
+
     TouchConsumer(SlideUpBuilder builder, PercentageChangeCalculator notifier,
                   AbstractSlideTranslator translator){
         mBuilder = builder;
         mTranslator = translator;
         mPercentageCalculator = notifier;
+        mTouchSlop = ViewConfiguration.get(builder.mSliderView.getContext()).getScaledTouchSlop();
     }
 
     protected abstract boolean consumeTouchEvent(View touchedView, MotionEvent event);

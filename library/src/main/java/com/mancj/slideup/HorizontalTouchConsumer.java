@@ -19,6 +19,9 @@ class HorizontalTouchConsumer extends TouchConsumer {
 
     @Override
     protected boolean consumeTouchEvent(View touchedView, MotionEvent event) {
+        if (event.getAction() != MotionEvent.ACTION_DOWN && !mCanSlide) {
+            return false;
+        }
         switch (mBuilder.mStartGravity) {
         case END:
             return consumeEndToStart(touchedView, event);
@@ -30,8 +33,11 @@ class HorizontalTouchConsumer extends TouchConsumer {
 
     boolean consumeEndToStart(View touchedView, MotionEvent event){
         float touchedArea = event.getX();
+        float moveDifference = event.getRawX() - mStartPositionX;
+        float moveDistance = Math.abs(moveDifference);
         switch (event.getActionMasked()){
             case MotionEvent.ACTION_DOWN:
+                mCandidateForClick = true;
                 mViewWidth = mBuilder.mSliderView.getWidth();
                 mStartPositionX = event.getRawX();
                 mViewStartPositionX = mBuilder.mSliderView.getTranslationX();
@@ -40,76 +46,93 @@ class HorizontalTouchConsumer extends TouchConsumer {
                 mOngoingTouch = mCanSlide;
                 break;
             case MotionEvent.ACTION_MOVE:
-                float difference = event.getRawX() - mStartPositionX;
-                float moveTo = mViewStartPositionX + difference;
+                float moveTo = mViewStartPositionX + moveDifference;
                 calculateDirection(event);
                 
                 if (moveTo > 0 && mCanSlide){
                     mBuilder.mSliderView.setTranslationX(moveTo);
                     mPercentageCalculator.recalculatePercentage();
                 }
+
+                if (mCandidateForClick && moveDistance > mTouchSlop) {
+                    mCandidateForClick = false;
+                }
                 break;
             case MotionEvent.ACTION_UP:
-                mOngoingTouch = false;
-                float slideAnimationFrom = mBuilder.mSliderView.getTranslationX();
-                if (slideAnimationFrom == mViewStartPositionX){
-                    return !Internal.isUpEventInView(mBuilder.mSliderView, event);
-                }
-                boolean scrollableAreaConsumed = mBuilder.mSliderView.getTranslationX() > mBuilder.mSliderView.getWidth() / 5;
-
-                if (scrollableAreaConsumed && mGoingToEnd){
-                    mTranslator.hideSlideView(false);
-                }else {
-                    mTranslator.showSlideView(false);
+                if (mCandidateForClick) {
+                    mTranslator.slideToCurrentState(false);
+                    touchedView.performClick();
+                } else {
+                    if (mGoingToEnd && moveDistance > mBuilder.mSliderView.getWidth() / 5.0) {
+                        mTranslator.hideSlideView(false);
+                    } else if (mGoingToStart && moveDistance > mBuilder.mSliderView.getWidth() / 5.0) {
+                        mTranslator.showSlideView(false);
+                    } else {
+                        mTranslator.slideToCurrentState(false);
+                    }
                 }
                 mCanSlide = true;
+                mGoingToEnd = false;
+                mGoingToStart = false;
+                mOngoingTouch = false;
+                mCandidateForClick = false;
                 break;
         }
         mPrevPositionY = event.getRawY();
         mPrevPositionX = event.getRawX();
-        return true;
+        return mCanSlide;
     }
     
     boolean consumeStartToEnd(View touchedView, MotionEvent event){
         float touchedArea = event.getX();
+        float moveDifference = event.getRawX() - mStartPositionX;
+        float moveDistance = Math.abs(moveDifference);
         switch (event.getActionMasked()){
             case MotionEvent.ACTION_DOWN:
+                mCandidateForClick = true;
                 mViewWidth = mBuilder.mSliderView.getWidth();
                 mStartPositionX = event.getRawX();
                 mViewStartPositionX = mBuilder.mSliderView.getTranslationX();
                 mCanSlide = touchFromAlsoSlide(touchedView, event);
-                mCanSlide |= getEnd() - mBuilder.mTouchableArea >= touchedArea;
+                mCanSlide |= getEnd() - mBuilder.mTouchableArea <= touchedArea;
                 mOngoingTouch = mCanSlide;
                 break;
             case MotionEvent.ACTION_MOVE:
-                float difference = event.getRawX() - mStartPositionX;
-                float moveTo = mViewStartPositionX + difference;
+                float moveTo = mViewStartPositionX + moveDifference;
                 calculateDirection(event);
                 
                 if (moveTo < 0 && mCanSlide){
                     mBuilder.mSliderView.setTranslationX(moveTo);
                     mPercentageCalculator.recalculatePercentage();
                 }
+
+                if (mCandidateForClick && moveDistance > mTouchSlop) {
+                    mCandidateForClick = false;
+                }
                 break;
             case MotionEvent.ACTION_UP:
-                mOngoingTouch = false;
-                float slideAnimationFrom = -mBuilder.mSliderView.getTranslationX();
-                if (slideAnimationFrom == mViewStartPositionX){
-                    return !Internal.isUpEventInView(mBuilder.mSliderView, event);
-                }
-                boolean scrollableAreaConsumed = mBuilder.mSliderView.getTranslationX() < -mBuilder.mSliderView.getHeight() / 5;
-
-                if (scrollableAreaConsumed && mGoingToStart){
-                    mTranslator.hideSlideView(false);
-                }else {
-                    mTranslator.showSlideView(false);
+                if (mCandidateForClick) {
+                    mTranslator.slideToCurrentState(false);
+                    touchedView.performClick();
+                } else {
+                    if (mGoingToStart && moveDistance > mBuilder.mSliderView.getWidth() / 5.0) {
+                        mTranslator.hideSlideView(false);
+                    } else if (mGoingToEnd && moveDistance > mBuilder.mSliderView.getWidth() / 5.0) {
+                        mTranslator.showSlideView(false);
+                    } else {
+                        mTranslator.slideToCurrentState(false);
+                    }
                 }
                 mCanSlide = true;
+                mGoingToEnd = false;
+                mGoingToStart = false;
+                mOngoingTouch = false;
+                mCandidateForClick = false;
                 break;
         }
         mPrevPositionY = event.getRawY();
         mPrevPositionX = event.getRawX();
-        return true;
+        return mCanSlide;
     }
 
     private void calculateDirection(MotionEvent event) {

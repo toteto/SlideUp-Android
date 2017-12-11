@@ -3,10 +3,12 @@ package com.mancj.slideup;
 public abstract class AbstractSlideTranslator {
   protected final SlideUpBuilder mBuilder;
   protected final AnimationProcessor mAnimationProcessor;
+  protected SlideUp.State mCurrentState;
 
   public AbstractSlideTranslator(SlideUpBuilder builder, AnimationProcessor animationProcessor) {
     this.mBuilder = builder;
     this.mAnimationProcessor = animationProcessor;
+    this.mCurrentState = builder.mStartState;
   }
 
   public void setTranslationY(float translationY) {
@@ -32,6 +34,14 @@ public abstract class AbstractSlideTranslator {
       immediatelyHideSlideView();
     } else {
       animateHideSlideView();
+    }
+  }
+
+  public final void slideToCurrentState(boolean immediately) {
+    if (mCurrentState == SlideUp.State.SHOWED) {
+      showSlideView(immediately);
+    } else if (mCurrentState == SlideUp.State.HIDDEN) {
+      hideSlideView(immediately);
     }
   }
 

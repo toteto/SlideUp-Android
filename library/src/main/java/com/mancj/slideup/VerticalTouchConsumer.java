@@ -19,6 +19,9 @@ class VerticalTouchConsumer extends TouchConsumer {
 
     @Override
     protected boolean consumeTouchEvent(View touchedView, MotionEvent event) {
+        if (event.getAction() != MotionEvent.ACTION_DOWN && !mCanSlide) {
+            return false;
+        }
         switch (mBuilder.mStartGravity) {
             case BOTTOM:
                 return consumeBottomToTop(touchedView, event);
@@ -30,9 +33,11 @@ class VerticalTouchConsumer extends TouchConsumer {
 
     boolean consumeBottomToTop(View touchedView, MotionEvent event){
         float touchedArea = event.getY();
+        float moveDifference = event.getRawY() - mStartPositionY;
+        float moveDistance = Math.abs(moveDifference);
         switch (event.getActionMasked()){
             case MotionEvent.ACTION_DOWN:
-                mOngoingTouch = true;
+                mCandidateForClick = true;
                 mViewHeight = mBuilder.mSliderView.getHeight();
                 mStartPositionY = event.getRawY();
                 mViewStartPositionY = mBuilder.mSliderView.getTranslationY();
@@ -41,42 +46,50 @@ class VerticalTouchConsumer extends TouchConsumer {
                 mOngoingTouch = mCanSlide;
                 break;
             case MotionEvent.ACTION_MOVE:
-                float difference = event.getRawY() - mStartPositionY;
-                float moveTo = mViewStartPositionY + difference;
+                float moveTo = mViewStartPositionY + moveDifference;
                 calculateDirection(event);
                 
                 if (moveTo > 0 && mCanSlide){
                     mBuilder.mSliderView.setTranslationY(moveTo);
                     mPercentageCalculator.recalculatePercentage();
                 }
+
+                if (mCandidateForClick && moveDistance > mTouchSlop) {
+                    mCandidateForClick = false;
+                }
                 break;
             case MotionEvent.ACTION_UP:
-                mOngoingTouch = false;
-                float slideAnimationFrom = mBuilder.mSliderView.getTranslationY();
-                if (slideAnimationFrom == mViewStartPositionY) {
-                    return !Internal.isUpEventInView(mBuilder.mSliderView, event);
-                }
-                boolean scrollableAreaConsumed = mBuilder.mSliderView.getTranslationY() > mBuilder.mSliderView.getHeight() / 5;
-
-                if (scrollableAreaConsumed && mGoingDown){
-                    mTranslator.hideSlideView(false);
+                if (mCandidateForClick) {
+                    mTranslator.slideToCurrentState(false);
+                    touchedView.performClick();
                 } else {
-                    mTranslator.showSlideView(false);
+                    if (mGoingDown && moveDistance > mBuilder.mSliderView.getHeight() / 5.0) {
+                        mTranslator.hideSlideView(false);
+                    } else if (mGoingUp && moveDistance > mBuilder.mSliderView.getHeight() / 5.0) {
+                        mTranslator.showSlideView(false);
+                    } else {
+                        mTranslator.slideToCurrentState(false);
+                    }
                 }
                 mCanSlide = true;
                 mGoingUp = false;
                 mGoingDown = false;
+                mOngoingTouch = false;
+                mCandidateForClick = false;
                 break;
         }
         mPrevPositionY = event.getRawY();
         mPrevPositionX = event.getRawX();
-        return true;
+        return mCanSlide;
     }
     
     boolean consumeTopToBottom(View touchedView, MotionEvent event){
         float touchedArea = event.getY();
+        float moveDifference = event.getRawY() - mStartPositionY;
+        float moveDistance = Math.abs(moveDifference);
         switch (event.getActionMasked()){
             case MotionEvent.ACTION_DOWN:
+                mCandidateForClick = true;
                 mViewHeight = mBuilder.mSliderView.getHeight();
                 mStartPositionY = event.getRawY();
                 mViewStartPositionY = mBuilder.mSliderView.getTranslationY();
@@ -85,29 +98,35 @@ class VerticalTouchConsumer extends TouchConsumer {
                 mOngoingTouch = mCanSlide;
                 break;
             case MotionEvent.ACTION_MOVE:
-                float difference = event.getRawY() - mStartPositionY;
-                float moveTo = mViewStartPositionY + difference;
+                float moveTo = mViewStartPositionY + moveDifference;
                 calculateDirection(event);
             
                 if (moveTo < 0 && mCanSlide){
                     mBuilder.mSliderView.setTranslationY(moveTo);
                     mPercentageCalculator.recalculatePercentage();
                 }
+                if (mCandidateForClick && moveDistance > mTouchSlop) {
+                    mCandidateForClick = false;
+                }
                 break;
             case MotionEvent.ACTION_UP:
-                mOngoingTouch = false;
-                float slideAnimationFrom = -mBuilder.mSliderView.getTranslationY();
-                if (slideAnimationFrom == mViewStartPositionY){
-                    return !Internal.isUpEventInView(mBuilder.mSliderView, event);
-                }
-                boolean scrollableAreaConsumed = mBuilder.mSliderView.getTranslationY() < -mBuilder.mSliderView.getHeight() / 5;
-
-                if (scrollableAreaConsumed && mGoingUp){
-                    mTranslator.hideSlideView(false);
-                }else {
-                    mTranslator.showSlideView(true);
+                if (mCandidateForClick) {
+                    mTranslator.slideToCurrentState(false);
+                    touchedView.performClick();
+                } else {
+                    if (mGoingUp && moveDistance > mBuilder.mSliderView.getHeight() / 5.0) {
+                        mTranslator.hideSlideView(false);
+                    } else if (mGoingDown && moveDistance > mBuilder.mSliderView.getHeight() / 5.0) {
+                        mTranslator.showSlideView(false);
+                    } else {
+                        mTranslator.slideToCurrentState(false);
+                    }
                 }
                 mCanSlide = true;
+                mGoingUp = false;
+                mGoingDown = false;
+                mOngoingTouch = false;
+                mCandidateForClick = false;
                 break;
         }
         mPrevPositionY = event.getRawY();
