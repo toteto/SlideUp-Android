@@ -97,7 +97,6 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     
     private void init() {
         mBuilder.mSliderView.setOnTouchListener(this);
-        mBuilder.mSliderView.setClickable(!mBuilder.mClickThrough);
         if(mBuilder.mAlsoScrollView != null) {
             mBuilder.mAlsoScrollView.setOnTouchListener(this);
         }
@@ -537,9 +536,19 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
         if (mCurrentState != newVisibility && (!mBuilder.mFilterFakePositives || !mTouchConsumer.isOngoingTouch())) {
             // visibility has changed and if applied filter fake positives
             mCurrentState = newVisibility;
-            mTranslationDelegate.mCurrentState = newVisibility;
-            notifyVisibilityChanged(newVisibility);
+            internalOnVisibilityChange();
         }
+    }
+
+    private void internalOnVisibilityChange() {
+      updateClickThrough();
+      mTranslationDelegate.mCurrentState = mCurrentState;
+      notifyVisibilityChanged(mCurrentState);
+    }
+
+    private void updateClickThrough() {
+      boolean clickable = !mBuilder.mClickThrough && mCurrentState == SHOWED;
+      mBuilder.mSliderView.setClickable(clickable);
     }
     
     @Override
