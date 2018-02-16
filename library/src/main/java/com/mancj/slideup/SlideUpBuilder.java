@@ -31,6 +31,7 @@ public final class SlideUpBuilder {
     boolean mHideKeyboard = false;
     boolean mFilterFakePositives = false;
     boolean mSticky = false;
+    boolean mClickThrough = false;
     TimeInterpolator mInterpolator = new DecelerateInterpolator();
     @Nullable
     View mAlsoScrollView;
@@ -217,6 +218,17 @@ public final class SlideUpBuilder {
      */
     public SlideUpBuilder withSticky(boolean sticky) {
         mSticky = sticky;
+        return this;
+    }
+
+
+    /**
+     * <p>When the SlideUp is showed and is configured to be click through, the click will be transfered to the views
+     * below it. Useful for making SlideUp overlays.</p>
+     * @param clickThrough <b>(default - <b color="#EF6C00">false</b>)</b>
+     */
+    public SlideUpBuilder withClickThrough(boolean clickThrough) {
+        mClickThrough = clickThrough;
         return this;
     }
     

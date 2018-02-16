@@ -97,6 +97,7 @@ public class SlideUp implements View.OnTouchListener, ValueAnimator.AnimatorUpda
     
     private void init() {
         mBuilder.mSliderView.setOnTouchListener(this);
+        mBuilder.mSliderView.setClickable(!mBuilder.mClickThrough);
         if(mBuilder.mAlsoScrollView != null) {
             mBuilder.mAlsoScrollView.setOnTouchListener(this);
         }
